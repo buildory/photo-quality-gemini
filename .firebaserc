@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "staging": "photo-quality-880b6",
+    "default": "photo-quality-880b6"
+  },
+  "targets": {},
+  "etags": {}
+}
