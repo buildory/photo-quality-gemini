@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 const WEIGHTS = {
   focus: 25,
@@ -40,6 +40,8 @@ const App = () => {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
+  const resultRef = useRef<HTMLDivElement | null>(null);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -73,6 +75,12 @@ const App = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (resultRef.current && result) {
+      resultRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [result]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -120,7 +128,9 @@ const App = () => {
         </div>
 
         {result && (
-          <div className="mt-10 bg-white shadow-lg rounded-lg p-6">
+          <div
+            ref={resultRef}
+className="mt-10 bg-white shadow-lg rounded-lg p-6">
             <h2 className="text-2xl font-bold mb-4">✨ 평가 결과</h2>
 
             {Object.entries(WEIGHTS).map(([key, weight]) => {
