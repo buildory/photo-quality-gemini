@@ -91,9 +91,41 @@ const App = () => {
       </header>
 
       {/* Main */}
-      <main className="flex-grow w-full max-w-3xl mx-auto p-6">
-        <div className="bg-white shadow rounded-lg p-6">
-        <div className="mb-6 text-left">
+      <main className="flex-grow w-full max-w-3xl mx-auto p-4">
+        <div className="flex justify-center select-none">
+          <div className="bg-[#414651] text-white text-sm w-fit py-1 px-2 rounded-lg flex flex-col items-center">
+            <p>🔒 걱정 마세요!</p>
+            <p>사진은 저장되지 않고, 분석 후 바로 사라져요.</p>
+          </div>
+        </div>
+        <div className="bg-white shadow rounded-lg p-4 mt-5">
+          <div className="text-left ">
+            {/* 이미 */}
+
+            <div className="flex flex-col gap-2">
+              <p className="text-2xl font-bold">
+                AI가 말해주는 내 사진의 점수는?
+              </p>
+              <p className="flex text-[#6172F3] font-medium">
+                <img src="/bling.svg" alt="bling" />
+                <span>취미로 찍은 사진, 혹시 작품일지도 몰라요!</span>
+              </p>
+              <p className="text-[#414651] text-sm">
+                초첨부터 감성까지, 6가지 기준으로 사진의 가치를 정밀하게
+                분석해드려요.
+              </p>
+            </div>
+
+            {preview && (
+              <img
+                src={preview}
+                alt="preview"
+                className="max-h-[calc(100vh-400px)] w-auto max-w-full object-contain mx-auto rounded-lg shadow mb-6 mt-5"
+              />
+            )}
+
+            <div className="flex justify-center mt-5 gap-4">
+              <div>
   <label
     htmlFor="file-upload"
     className="inline-block cursor-pointer bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded"
