@@ -90,6 +90,23 @@ const handleDownload = () => {
       })
 };
 
+const handleShare = async() => {
+  const shareData = {
+    title: "사진 품질 측정기",
+    text: "취미로 찍은 사진, 혹시 작품일지도 몰라요!",
+    url: window.location.href,
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch (err) {
+      console.error("공유 취소 또는 오류:", err);
+    }
+  } else {
+    alert("이 브라우저는 공유 기능을 지원하지 않습니다.");
+  }
+};
 
 
   useEffect(() => {
@@ -259,6 +276,11 @@ const handleDownload = () => {
           </div>
         )}
         </section>
+        <div className="flex justify-center mt-20">
+          <button onClick={handleShare} className="cursor-pointer px-20 py-3 bg-[#9E77ED] font-semibold text-white rounded-lg shadow-lg">
+            테스트 공유하기
+          </button>
+        </div>
       </main>
     </div>
   );
