@@ -34,6 +34,7 @@ const App = () => {
   const [loading, setLoading] = useState(false);
 
   const resultRef = useRef<HTMLDivElement | null>(null);
+  const captureRef = useRef<HTMLDivElement | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -72,6 +73,25 @@ const App = () => {
     }
   };
 
+const handleDownload = () => {
+    if (captureRef.current === null) {
+      return
+    }
+
+    toPng(captureRef.current, { cacheBust: true, })
+      .then((dataUrl) => {
+        const link = document.createElement('a')
+        link.download = 'result.png'
+        link.href = dataUrl
+        link.click()
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+};
+
+
+
   useEffect(() => {
     if (resultRef.current && result) {
       resultRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -96,6 +116,7 @@ const App = () => {
             <p>사진은 저장되지 않고, 분석 후 바로 사라져요.</p>
           </div>
         </div>
+        <section id="download-section" ref={captureRef}>
         <div className="bg-white shadow rounded-lg p-4 mt-5">
           <div className="text-left ">
             {/* 이미 */}
@@ -118,7 +139,7 @@ const App = () => {
               <img
                 src={preview}
                 alt="preview"
-                className="max-h-[calc(100vh-400px)] w-auto max-w-full object-contain mx-auto rounded-lg shadow mb-6 mt-5"
+                className="max-h-[calc(100vh-500px)] w-auto max-w-full object-contain mx-auto rounded-lg shadow mb-6 mt-5"
               />
             )}
 
@@ -154,7 +175,6 @@ const App = () => {
             </div>
           </div>
         </div>
-
         {result && (
           <div
             ref={resultRef}
@@ -171,10 +191,10 @@ const App = () => {
                 <div>
                   <span className="text-[#939ad4]">{result.final_score}</span>점
                 </div>
-                <div className="flex-1 h-1 bg-[#FAFAFA] rounded">
+                <div className="flex-1 h-[4px] bg-[#FAFAFA] rounded">
                   <div
                     className={`h-full rounded bg-[#6172F3]`}
-                    style={{ width: `${(result.final_score / 100) * 100}%` }}
+                    style={{ width: `${result.final_score}%` }}
                   />
                 </div>
                 <div>100점</div>
@@ -192,7 +212,7 @@ const App = () => {
               {/* <button className="cursor-pointer px-4 py-3 border-1 border-[#9E77ED] rounded-lg text-[#9E77ED] font-semibold">
                 결과 저장하기
               </button> */}
-              <button className="cursor-pointer px-20 py-3 bg-[#9E77ED] font-semibold text-white rounded-lg shadow-lg">
+              <button onClick={handleDownload} className="cursor-pointer px-20 py-3 bg-[#9E77ED] font-semibold text-white rounded-lg shadow-lg">
                 결과 저장하기
               </button>
             </div>
@@ -238,6 +258,7 @@ const App = () => {
             })}
           </div>
         )}
+        </section>
       </main>
     </div>
   );
