@@ -34,6 +34,7 @@ const App = () => {
   const [loading, setLoading] = useState(false);
 
   const resultRef = useRef<HTMLDivElement | null>(null);
+  const captureRef = useRef<HTMLDivElement | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -72,6 +73,42 @@ const App = () => {
     }
   };
 
+const handleDownload = () => {
+    if (captureRef.current === null) {
+      return
+    }
+
+    toPng(captureRef.current, { cacheBust: true, })
+      .then((dataUrl) => {
+        const link = document.createElement('a')
+        link.download = 'result.png'
+        link.href = dataUrl
+        link.click()
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+};
+
+const handleShare = async() => {
+  const shareData = {
+    title: "사진 품질 측정기",
+    text: "취미로 찍은 사진, 혹시 작품일지도 몰라요!",
+    url: window.location.href,
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch (err) {
+      console.error("공유 취소 또는 오류:", err);
+    }
+  } else {
+    alert("이 브라우저는 공유 기능을 지원하지 않습니다.");
+  }
+};
+
+
   useEffect(() => {
     if (resultRef.current && result) {
       resultRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -96,6 +133,7 @@ const App = () => {
             <p>사진은 저장되지 않고, 분석 후 바로 사라져요.</p>
           </div>
         </div>
+        <section id="download-section" ref={captureRef}>
         <div className="bg-white shadow rounded-lg p-4 mt-5">
           <div className="text-left ">
             {/* 이미 */}
@@ -118,7 +156,7 @@ const App = () => {
               <img
                 src={preview}
                 alt="preview"
-                className="max-h-[calc(100vh-400px)] w-auto max-w-full object-contain mx-auto rounded-lg shadow mb-6 mt-5"
+                className="max-h-[calc(100vh-500px)] w-auto max-w-full object-contain mx-auto rounded-lg shadow mb-6 mt-5"
               />
             )}
 
@@ -154,7 +192,6 @@ const App = () => {
             </div>
           </div>
         </div>
-
         {result && (
           <div
             ref={resultRef}
@@ -171,10 +208,10 @@ const App = () => {
                 <div>
                   <span className="text-[#939ad4]">{result.final_score}</span>점
                 </div>
-                <div className="flex-1 h-1 bg-[#FAFAFA] rounded">
+                <div className="flex-1 h-[4px] bg-[#FAFAFA] rounded">
                   <div
                     className={`h-full rounded bg-[#6172F3]`}
-                    style={{ width: `${(result.final_score / 100) * 100}%` }}
+                    style={{ width: `${result.final_score}%` }}
                   />
                 </div>
                 <div>100점</div>
@@ -192,7 +229,7 @@ const App = () => {
               {/* <button className="cursor-pointer px-4 py-3 border-1 border-[#9E77ED] rounded-lg text-[#9E77ED] font-semibold">
                 결과 저장하기
               </button> */}
-              <button className="cursor-pointer px-20 py-3 bg-[#9E77ED] font-semibold text-white rounded-lg shadow-lg">
+              <button onClick={handleDownload} className="cursor-pointer px-20 py-3 bg-[#9E77ED] font-semibold text-white rounded-lg shadow-lg">
                 결과 저장하기
               </button>
             </div>
@@ -238,6 +275,12 @@ const App = () => {
             })}
           </div>
         )}
+        </section>
+        <div className="flex justify-center mt-20">
+          <button onClick={handleShare} className="cursor-pointer px-20 py-3 bg-[#9E77ED] font-semibold text-white rounded-lg shadow-lg">
+            테스트 공유하기
+          </button>
+        </div>
       </main>
     </div>
   );
