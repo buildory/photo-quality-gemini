@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import { toPng } from "html-to-image";
+import { LoaderCircle } from "lucide-react";
 
 const WEIGHTS = {
   focus: 25,
@@ -32,6 +34,7 @@ const App = () => {
   const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const resultRef = useRef<HTMLDivElement | null>(null);
   const captureRef = useRef<HTMLDivElement | null>(null);
@@ -78,15 +81,19 @@ const handleDownload = () => {
       return
     }
 
+    setDownloading(true);
+
     toPng(captureRef.current, { cacheBust: true, })
       .then((dataUrl) => {
         const link = document.createElement('a')
         link.download = 'result.png'
         link.href = dataUrl
         link.click()
+        setDownloading(false)
       })
       .catch((err) => {
         console.log(err)
+         setDownloading(false)
       })
 };
 
@@ -117,15 +124,12 @@ const handleShare = async() => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Header */}
       <header className="flex py-3 px-4 text-center font-semibold gap-3">
         <div className="cursor-pointer flex gap-3 select-none">
           <img src="/chevron-left.svg" alt="chevron-left" />
           <div>나의 사진 점수 테스트</div>
         </div>
       </header>
-
-      {/* Main */}
       <main className="flex-grow w-full max-w-3xl mx-auto p-4">
         <div className="flex justify-center select-none">
           <div className="bg-[#414651] text-white text-sm w-fit py-1 px-2 rounded-lg flex flex-col items-center">
@@ -136,8 +140,6 @@ const handleShare = async() => {
         <section id="download-section" ref={captureRef}>
         <div className="bg-white shadow rounded-lg p-4 mt-5">
           <div className="text-left ">
-            {/* 이미 */}
-
             <div className="flex flex-col gap-2">
               <p className="text-2xl font-bold">
                 AI가 말해주는 내 사진의 점수는?
@@ -166,9 +168,9 @@ const handleShare = async() => {
                   htmlFor="file-upload"
                   className={`inline-block cursor-pointer ${
                     preview ? "bg-white border" : "bg-[#181d27] text-white"
-                  }  font-semibold py-3 px-4 rounded-lg`}
+                  }  font-semibold py-3 px-4 rounded-lg whitespace-nowrap`}
                 >
-                  {preview ? "사진 변경하기" : "사진 업로드"}
+                  <span>{preview ? "사진 변경하기" : "사진 업로드"}</span>
                 </label>
                 <input
                   id="file-upload"
@@ -218,7 +220,7 @@ const handleShare = async() => {
               </div>
 
               <div className="flex gap-1">
-                <div>
+                <div className="min-w-[16px]">
                   <img src="/bling-black.svg" alt="bling-black" />
                 </div>
                 <div className="text-[#414651]">{result.comment}</div>
@@ -226,11 +228,11 @@ const handleShare = async() => {
             </div>
 
             <div className="flex gap-4 justify-center mt-5">
-              {/* <button className="cursor-pointer px-4 py-3 border-1 border-[#9E77ED] rounded-lg text-[#9E77ED] font-semibold">
-                결과 저장하기
-              </button> */}
-              <button onClick={handleDownload} className="cursor-pointer px-20 py-3 bg-[#9E77ED] font-semibold text-white rounded-lg shadow-lg">
-                결과 저장하기
+              <button disabled={downloading} onClick={handleDownload} className="cursor-pointer w-[248px] px-4 py-3 bg-[#9E77ED] font-semibold text-white rounded-lg shadow-lg">
+                {downloading ? <LoaderCircle className="animate-spin mx-auto"/> : '결과 저장하기'}
+              </button>
+              <button onClick={handleShare} className="cursor-pointer p-4 border-1 border-[#9E77ED] rounded-lg text-[#9E77ED] font-semibold">
+                <img src="/share.svg" alt="share" />
               </button>
             </div>
 
@@ -276,11 +278,6 @@ const handleShare = async() => {
           </div>
         )}
         </section>
-        <div className="flex justify-center mt-20">
-          <button onClick={handleShare} className="cursor-pointer px-20 py-3 bg-[#9E77ED] font-semibold text-white rounded-lg shadow-lg">
-            테스트 공유하기
-          </button>
-        </div>
       </main>
     </div>
   );
