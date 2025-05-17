@@ -15,6 +15,7 @@
     "firebase": "^11.6.0",
     "firebase-functions": "^6.3.2",
     "html-to-image": "^1.11.13",
+    "lucide-react": "^0.511.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.1.4"
