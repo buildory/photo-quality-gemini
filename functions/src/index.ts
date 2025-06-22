@@ -1,7 +1,52 @@
 import { onRequest } from "firebase-functions/v2/https";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Client as NotionClient } from "@notionhq/client";
 import * as dotenv from "dotenv";
 dotenv.config();
+
+const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });
+const labelDatabaseId = process.env.LABEL_DATABASE_ID!;
+
+const NICKNAME_LABELS = [
+  { min: 96, label: "🎨 사진 예술의 거장" },
+  { min: 86, label: "📷 감각이 뛰어난 전문가" },
+  { min: 71, label: "📸 감성을 아는 실력자" },
+  { min: 51, label: "🔍 성장 중인 사진가" },
+  { min: 26, label: "🤳 아직은 미숙한 도전자" },
+  { min: 0, label: "💩 기준 미달의 똥손" },
+];
+
+const incrementLabelHit = async (finalScore: number) => {
+const nicknameLabel = NICKNAME_LABELS.find((n) => finalScore >= n.min)?.label;
+
+if (nicknameLabel) {
+  const res = await notion.databases.query({
+    database_id: labelDatabaseId,
+    filter: {
+      property: "label",
+      rich_text: {
+        equals: nicknameLabel,
+      },
+    },
+  });
+
+  const page = res.results[0];
+  if (page && "id" in page) {
+    const current = (page.properties as any).hit?.number ?? 0;
+
+    await notion.pages.update({
+      page_id: page.id,
+      properties: {
+        hit: { number: current + 1 },
+      },
+    });
+
+    console.log(`✅ Hit updated for label: ${nicknameLabel}`);
+  } else {
+    console.warn("❌ Label not found in Notion:", nicknameLabel);
+  }
+}
+};
 
 function stripMarkdownJson(text: string): string {
   return text.replace(/```json\s*|```/gi, "").trim();
@@ -93,6 +138,8 @@ exports.evaluatePhoto = onRequest({ cors: ["http://localhost:3000", "https://pho
       resolution: parsed.resolution.score,
       face_detection: parsed.face_detection.score
     });
+
+    await incrementLabelHit(final_score)
 
     res.status(200).json({
       ...parsed,

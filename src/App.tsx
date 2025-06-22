@@ -37,7 +37,6 @@ const App = () => {
   const [downloading, setDownloading] = useState(false);
 
   const resultRef = useRef<HTMLDivElement | null>(null);
-  const captureRef = useRef<HTMLDivElement | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -77,13 +76,13 @@ const App = () => {
   };
 
 const handleDownload = () => {
-    if (captureRef.current === null) {
+    if (resultRef.current === null) {
       return
     }
 
     setDownloading(true);
 
-    toPng(captureRef.current, { cacheBust: true, })
+    toPng(resultRef.current, { cacheBust: true, })
       .then((dataUrl) => {
         const link = document.createElement('a')
         link.download = 'result.png'
@@ -124,8 +123,8 @@ const handleShare = async() => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <header className="flex py-3 px-4 text-center font-semibold gap-3">
-        <div className="cursor-pointer flex gap-3 select-none">
+      <header className="flex py-3 px-4 text-center font-semibold gap-3 w-full max-w-3xl mx-auto">
+        <div onClick={()=> window.location.href = 'https://phodo-test-hub.vercel.app'} className="cursor-pointer flex gap-3 select-none">
           <img src="/chevron-left.svg" alt="chevron-left" />
           <div>나의 사진 점수 테스트</div>
         </div>
@@ -137,7 +136,7 @@ const handleShare = async() => {
             <p>사진은 저장되지 않고, 분석 후 바로 사라져요.</p>
           </div>
         </div>
-        <section id="download-section" ref={captureRef}>
+        <section>
         <div className="bg-white shadow rounded-lg p-4 mt-5">
           <div className="text-left ">
             <div className="flex flex-col gap-2">
@@ -155,11 +154,18 @@ const handleShare = async() => {
             </div>
 
             {preview && (
+              <> 
+            {(!result && !loading) && (
               <img
                 src={preview}
                 alt="preview"
-                className="max-h-[calc(100vh-500px)] w-auto max-w-full object-contain mx-auto rounded-lg shadow mb-6 mt-5"
+                className="max-h-[calc(100vh-500px)] min-h-60 w-auto max-w-full object-contain mx-auto rounded-lg shadow mb-6 mt-5"
               />
+            )}
+            {(loading) && (
+              <div className="text-[#9E77ED] font-bold text-lg mt-5 flex justify-center">"AI가 사진을 분석하고 있어요"</div>
+            )}
+            </>
             )}
 
             <div className="flex justify-center mt-5 gap-4">
@@ -178,6 +184,7 @@ const handleShare = async() => {
                   accept="image/*"
                   onChange={handleFileChange}
                   className="hidden"
+                  disabled={loading}
                 />
               </div>
               <div>
@@ -185,9 +192,9 @@ const handleShare = async() => {
                   <button
                     onClick={handleSubmit}
                     disabled={!imageFile || loading || !!result}
-                    className="bg-[#181d27] text-white font-semibold py-3 px-4 rounded-lg disabled:opacity-50 w-full cursor-pointer"
+                    className={`${loading ? 'bg-[#E9EAEB]' :  'bg-[#181d27]'} text-white font-semibold py-3 px-4 rounded-lg disabled:opacity-50 w-full cursor-pointer`}
                   >
-                    {loading ? "평가 중..." : "사진 분석하기"}
+                    {loading ? <LoaderCircle className="animate-spin"/> : <span>사진 분석하기</span>}
                   </button>
                 )}
               </div>
@@ -199,6 +206,13 @@ const handleShare = async() => {
             ref={resultRef}
             className="mt-5 bg-white shadow-lg rounded-lg p-4"
           >
+            {(preview && !loading) && (
+              <img
+                src={preview}
+                alt="preview"
+                className="max-h-[calc(100vh-500px)] w-auto max-w-full object-contain mx-auto rounded-lg shadow mb-6 mt-5"
+              />
+            )}
             <h2 className="text-2xl font-bold mb-5">분석 결과</h2>
 
             <div className="flex flex-col gap-2">
@@ -229,7 +243,7 @@ const handleShare = async() => {
 
             <div className="flex gap-4 justify-center mt-5">
               <button disabled={downloading} onClick={handleDownload} className="cursor-pointer w-[248px] px-4 py-3 bg-[#9E77ED] font-semibold text-white rounded-lg shadow-lg">
-                {downloading ? <LoaderCircle className="animate-spin mx-auto"/> : '결과 저장하기'}
+                결과 저장하기
               </button>
               <button onClick={handleShare} className="cursor-pointer p-4 border-1 border-[#9E77ED] rounded-lg text-[#9E77ED] font-semibold">
                 <img src="/share.svg" alt="share" />
