@@ -210,7 +210,7 @@ const handleShare = async() => {
               <img
                 src={preview}
                 alt="preview"
-                className="max-h-[calc(100vh-500px)] w-auto max-w-full object-contain mx-auto rounded-lg shadow mb-6 mt-5"
+                className="max-h-[calc(100vh-500px)] min-h-60 w-auto max-w-full object-contain mx-auto rounded-lg shadow mb-6 mt-5"
               />
             )}
             <h2 className="text-2xl font-bold mb-5">분석 결과</h2>
